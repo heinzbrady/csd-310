@@ -3,15 +3,17 @@
 import mysql.connector
 from mysql.connector import errorcode
 from dotenv import dotenv_values
+from pathlib import Path
 
-secrets = dotenv_values(".env")  
+# Force load .env from this file's folder
+env_path = Path(__file__).parent / ".env"
+secrets = dotenv_values(env_path)
 
 config = {
     "user": secrets["USER"],
     "password": secrets["PASSWORD"],
     "host": secrets["HOST"],
     "database": secrets["DATABASE"],
-    "raise_on_warnings": True
 }
 
 try:
@@ -47,19 +49,8 @@ try:
         print(f"Director: {film_director}\n")
 
 except mysql.connector.Error as err:
-    if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-        print("ERROR: Invalid username or password.")
-    elif err.errno == errorcode.ER_BAD_DB_ERROR:
-        print("ERROR: Database does not exist.")
-    else:
-        print(err)
+    print(err)
 
 finally:
-    try:
-        cursor.close()
-    except:
-        pass
-    try:
-        db.close()
-    except:
-        pass
+    cursor.close()
+    db.close()
